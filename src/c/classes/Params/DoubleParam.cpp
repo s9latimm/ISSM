@@ -9,7 +9,7 @@
 #endif
 
 #include "../classes.h"
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 
 /*DoubleParam constructors and destructor*/
 DoubleParam::DoubleParam(){/*{{{*/

@@ -10,8 +10,8 @@
 #endif
 
 #include "./classes.h"
-#include "shared/shared.h"
-#include "modules/ModelProcessorx/ModelProcessorx.h"
+#include "../shared/shared.h"
+#include "../modules/ModelProcessorx/ModelProcessorx.h"
 #include "../analyses/analyses.h"
 /*}}}*/
 

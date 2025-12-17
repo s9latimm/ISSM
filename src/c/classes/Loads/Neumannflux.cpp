@@ -10,7 +10,7 @@
 #error "Cannot compile with HAVE_CONFIG_H symbol! run configure first!"
 #endif
 
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 #include "../classes.h"
 /*}}}*/	
 

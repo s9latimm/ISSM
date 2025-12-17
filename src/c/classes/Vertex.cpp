@@ -11,7 +11,7 @@
 
 #include <string.h>
 #include "classes.h"
-#include "shared/shared.h"
+#include "../shared/shared.h"
 /*}}}*/
 
 /*Vertex constructors and destructor:*/

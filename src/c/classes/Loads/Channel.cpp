@@ -11,7 +11,7 @@
 #endif
 
 #include <float.h> /*defines DBL_EPSILON*/
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 #include "../classes.h"
 /*}}}*/	
 

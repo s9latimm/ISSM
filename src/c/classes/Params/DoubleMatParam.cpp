@@ -11,7 +11,7 @@
 #endif
 
 #include "../classes.h"
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 /*}}}*/
 
 /*DoubleMatParam constructors and destructor*/

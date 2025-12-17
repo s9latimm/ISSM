@@ -10,7 +10,7 @@
 
 #include "../classes.h"
 #include "./Constraint.h"
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 
 /*SpcTransient constructors and destructor*/
 SpcTransient::SpcTransient(){/*{{{*/

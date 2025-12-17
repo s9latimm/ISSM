@@ -15,7 +15,7 @@
 #include "../shared/io/io.h"
 #include "./classes.h"
 #include "./Inputs/TriaInput.h"
-#include "./modules/modules.h"
+#include "../modules/modules.h"
 #include "../shared/Enum/Enum.h"
 #include "../analyses/analyses.h"
 #include "./Inputs/DatasetInput.h"

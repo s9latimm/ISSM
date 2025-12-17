@@ -11,7 +11,7 @@
 #endif
 
 #include "../classes.h"
-#include "shared/shared.h"
+#include "../../shared/shared.h"
 /*}}}*/
 
 DoubleTransientMatParam::DoubleTransientMatParam(int in_enum_type,IssmDouble* in_value, int in_M,int in_N):DoubleMatParam(in_enum_type,in_value,in_M,in_N){/*{{{*/
