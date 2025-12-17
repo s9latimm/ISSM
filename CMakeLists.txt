@@ -19,35 +19,33 @@ endif ()
 add_compile_definitions(_DO_NOT_LOAD_GLOBALS_)
 add_compile_definitions(_USE_MATH_DEFINES)
 
-# config
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/config")
 include(config)
 include_directories(config)
 
-# chaco
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/chaco/install/include")
+if (CHACO)
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/chaco/install/include")
+    list(APPEND ISSM_EXTERNAL_LIBS chaco)
+endif ()
 
-# m1qn3
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/m1qn3/install")
+if (M1QN3)
+    link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/m1qn3/install")
+    list(APPEND ISSM_EXTERNAL_LIBS m1qn3 ddot)
+endif ()
 
-# triangle
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/triangle/install/include")
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/triangle/install/lib")
+if (TRIANGLE)
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/triangle/install/include")
+    link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/triangle/install/lib")
+    list(APPEND ISSM_EXTERNAL_LIBS triangle)
+endif ()
 
-# petsc
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/petsc/install/include")
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/petsc/install/lib")
+if (PETSC)
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/petsc/install/include")
+    link_directories("${CMAKE_CURRENT_SOURCE_DIR}/externalpackages/petsc/install/lib")
+    list(APPEND ISSM_EXTERNAL_LIBS petsc mpi metis)
+endif ()
 
 add_subdirectory(src)
 add_executable(issm.exe src/c/main/issm.cpp)
 
-target_link_libraries(issm.exe
-        issm-sources
-        petsc
-        mpi
-        metis
-        m1qn3
-        ddot
-        gfortran
-        triangle
-)
+target_link_libraries(issm.exe issm-sources gfortran ${ISSM_EXTERNAL_LIBS})
