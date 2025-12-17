@@ -3,7 +3,7 @@
 #define _COVERTREE_H
 
 #include <map>
-class Observation;
+#include "Observation.h"
 
 class Covertree{
 

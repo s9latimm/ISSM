@@ -2,7 +2,7 @@
 #ifndef _QUADTREE_H
 #define _QUADTREE_H
 
-class Observation;
+#include "Observation.h"
 
 class Quadtree{
 
