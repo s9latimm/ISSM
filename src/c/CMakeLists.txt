@@ -769,7 +769,7 @@ list(APPEND neopz_sources
 )
 #}}}
 # Modules sources {{{
-list(APPEND modules_sources
+list(APPEND MODULES_SOURCES
         shared/Threads/LaunchThread.cpp
         shared/Threads/PartitionRange.cpp
         shared/Exp/exp.cpp
@@ -790,8 +790,8 @@ list(APPEND modules_sources
         modules/MeshProfileIntersectionx/MeshProfileIntersectionx.cpp
         modules/ContourToMeshx/ContourToMeshx.cpp
         modules/ContourToMeshx/ContourToMeshxt.cpp
-        modules/ExpToLevelse () tx/ExpToLevelse () tx.cpp
-        modules/ExpToLevelse () tx/ExpToLevelse () txt.cpp
+        modules/ExpToLevelSetx/ExpToLevelSetx.cpp
+        modules/ExpToLevelSetx/ExpToLevelSetxt.cpp
         modules/ContourToNodesx/ContourToNodesx.cpp
         modules/DistanceToMaskBoundaryx/DistanceToMaskBoundaryx.cpp
         modules/DistanceToMaskBoundaryx/DistanceToMaskBoundaryxt.cpp
@@ -800,7 +800,7 @@ list(APPEND modules_sources
         modules/PropagateFlagsFromConnectivityx/PropagateFlagsFromConnectivityx.cpp
 )
 if (CHACO)
-    list(APPEND modules_sources
+    list(APPEND MODULES_SOURCES
             modules/Chacox/Chacox.cpp
             modules/Chacox/input_parse.cpp
             modules/Chacox/chaco_seconds.cpp
@@ -808,7 +808,7 @@ if (CHACO)
     )
 endif ()
 if (SCOTCH)
-    list(APPEND modules_sources
+    list(APPEND MODULES_SOURCES
             modules/Scotchx/Scotchx.cpp
     )
 endif ()
@@ -827,18 +827,23 @@ if (KRIGING)
             classes/kriging/Observation.cpp
             modules/Krigingx/pKrigingx.cpp
     )
-    list(APPEND modules_sources
+    list(APPEND MODULES_SOURCES
             modules/Krigingx/Krigingx.cpp
             modules/Krigingx/pKrigingx.cpp
     )
 endif ()
 #}}}
 
+add_library(libISSMCore STATIC ${ISSM_SOURCES})
+target_link_libraries(libISSMCore m gfortran petsc mpi metis triangle)
+
+add_library(libISSMModules STATIC ${MODULES_SOURCES})
+target_link_libraries(libISSMModules m gfortran petsc mpi metis triangle)
+
 if (NOT MSYS2)
-    list(APPEND ISSM_SOURCES
+    add_library(libISSMOverload STATIC
             shared/String/ApiPrintf.cpp
     )
+    target_link_libraries(libISSMCore libISSMOverload)
+    target_link_libraries(libISSMModules libISSMOverload)
 endif ()
-
-
-add_library(issm-sources ${ISSM_SOURCES})

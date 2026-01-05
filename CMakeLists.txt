@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+add_compile_definitions(ISSM_PREFIX="${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
@@ -15,6 +18,7 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 
 message(STATUS "Binary files will be written to: ${CMAKE_BINARY_DIR}")
 message(STATUS "Library files will be written to: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
@@ -69,7 +73,7 @@ endif ()
 add_subdirectory(src)
 add_executable(issm.exe src/c/main/issm.cpp)
 
-target_link_libraries(issm.exe issm-sources m gfortran ${ISSM_EXTERNAL_LIBS})
+target_link_libraries(issm.exe m gfortran ${ISSM_EXTERNAL_LIBS} libISSMCore libISSMModules)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_property(TARGET issm.exe PROPERTY LINKER_TYPE LLD)
