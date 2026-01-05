@@ -101,6 +101,11 @@ examples/Helheim/Models
 #===========
 .idea
 
+# VENV #
+#===========
+.venv
+.venv-win
+
 # CMake #
 #===========
 cmake-build-*

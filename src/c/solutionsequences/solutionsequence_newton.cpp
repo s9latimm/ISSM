@@ -79,6 +79,8 @@ void solutionsequence_newton(FemModel* femmodel){
 		Kff->MatMult(uf,pJf);
 		pJf->Scale(-1.0); pJf->AXPY(pf,+1.0);
 
+		_printf0_("running newton!\n");
+
 		CreateJacobianMatrixx(&Jff,femmodel,kmax);
 		femmodel->profiler->Start(SOLVER);
 		Solverx(&duf,Jff,pJf,NULL,NULL,femmodel->parameters); delete Jff; delete pJf;

@@ -21,6 +21,11 @@
 #include "../../c/main/globals.h"
 #include "../../c/shared/shared.h"
 
+#include "../python/include/pythonincludes.h"
+#include "../python/include/wrapper_macros.h"
+
+#include "../python/io/pythonio.h"
+
 #undef __FUNCT__ 
 #define __FUNCT__  "IssmConfig"
 
