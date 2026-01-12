@@ -1,4 +1,5 @@
 from math import ceil, sqrt
+from pathlib import Path
 
 try:
     import matplotlib.pyplot as plt
@@ -136,6 +137,9 @@ def plotmodel(md, *args):
             except KeyError:
                 print("Too many axes present, we delete the overflow")
                 fig.delaxes(axgrid[i])
-        fig.show()
+
+        path = Path(__file__).parent.parent / 'output' / 'issm.png'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path)
     else:
         raise Exception('plotmodel error message: no output data found.')

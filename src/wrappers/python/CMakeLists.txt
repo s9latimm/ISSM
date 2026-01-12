@@ -40,6 +40,9 @@ endif ()
 add_library(IssmConfig_python SHARED
         ../IssmConfig/IssmConfig.cpp
 )
+string(TIMESTAMP PACKAGE_BUILD_DATE "%a %b %d %H:%M:%S %Z %Y")
+message(STATUS "Found date: ${PACKAGE_BUILD_DATE}")
+target_compile_definitions(IssmConfig_python PUBLIC PACKAGE_BUILD_DATE="${PACKAGE_BUILD_DATE}")
 target_link_libraries(IssmConfig_python libISSMPython)
 
 if (CHACO)
