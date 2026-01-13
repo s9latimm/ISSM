@@ -13,21 +13,21 @@ void solutionsequence_newton(FemModel *femmodel) {
     bool converged;
     int count, newton;
     IssmDouble kmax;
-    Matrix<IssmDouble> *Kff = NULL;
-    Matrix<IssmDouble> *Kfs = NULL;
-    Matrix<IssmDouble> *Jff = NULL;
-    Vector<IssmDouble> *ug = NULL;
-    Vector<IssmDouble> *old_ug = NULL;
-    Vector<IssmDouble> *uf = NULL;
-    Vector<IssmDouble> *old_uf = NULL;
-    Vector<IssmDouble> *duf = NULL;
-    Vector<IssmDouble> *pf = NULL;
-    Vector<IssmDouble> *pJf = NULL;
-    Vector<IssmDouble> *df = NULL;
-    Vector<IssmDouble> *ys = NULL;
+    Matrix<IssmDouble> *Kff = nullptr;
+    Matrix<IssmDouble> *Kfs = nullptr;
+    Matrix<IssmDouble> *Jff = nullptr;
+    Vector<IssmDouble> *ug = nullptr;
+    Vector<IssmDouble> *old_ug = nullptr;
+    Vector<IssmDouble> *uf = nullptr;
+    Vector<IssmDouble> *old_uf = nullptr;
+    Vector<IssmDouble> *duf = nullptr;
+    Vector<IssmDouble> *pf = nullptr;
+    Vector<IssmDouble> *pJf = nullptr;
+    Vector<IssmDouble> *df = nullptr;
+    Vector<IssmDouble> *ys = nullptr;
 
     /*parameters:*/
-    int max_nonlinear_iterations = 1'000;
+    int max_nonlinear_iterations = 1;
     IssmDouble eps_res, eps_rel, eps_abs;
 
     /*Recover parameters: */
@@ -57,7 +57,7 @@ void solutionsequence_newton(FemModel *femmodel) {
 
         /*Solver forward model*/
         if (count == 0 || newton == 2) {
-            SystemMatricesx(&Kff, &Kfs, &pf, &df,NULL, femmodel);
+            SystemMatricesx(&Kff, &Kfs, &pf, &df, nullptr, femmodel);
             CreateNodalConstraintsx(&ys, femmodel->nodes);
             Reduceloadx(pf, Kfs, ys);
             delete Kfs;
@@ -86,26 +86,106 @@ void solutionsequence_newton(FemModel *femmodel) {
         delete Kfs;
 
         pJf = pf->Duplicate();
-        Kff->MatMult(uf, pJf);
+
+        // pJf = -pJf
         pJf->Scale(-1.0);
+        // pJf = pJf + pf
         pJf->AXPY(pf, +1.0);
 
         _printf0_("running newton:" << count <<"\n");
 
-        // uf = v ?
+        // v = uf
+        // p = pf
+        // G(v, p) = pJf
 
         CreateJacobianMatrixx(&Jff, femmodel, kmax);
-        femmodel->profiler->Start(SOLVER);
 
-        // J_F(x_n)(x_{n+1} - x_n) = -F(x_n)
+        // Matrix<IssmDouble> *a = new Matrix<IssmDouble>(2, 2, false);
+        //
+        // MatSetOption(a->pmatrix->matrix, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+        //
+        // PetscScalar values[1] = {2};
+        // a->SetZero();
+        // IssmInt idxm = 0;
+        // IssmInt idxn = 0;
+        // a->SetValues(1, &idxm, 1, &idxn, values, INS_VAL);
+        // values[0] = {1};
+        // idxm = 1;
+        // idxn = 1;
+        // a->SetValues(1, &idxm, 1, &idxn, values, INS_VAL);
+        // a->Assemble();
+        //
+        // Vector<IssmDouble> *b = new Vector<IssmDouble>(2);
+        // b->SetValue(0, 5, INS_VAL);
+        // b->SetValue(1, 32, INS_VAL);
+        // b->Assemble();
+        //
+        // cout << "a:" << endl;
+        // a->Echo();
+        // cout << "b:" << endl;
+        // b->Echo();
+        //
+        // Solver<IssmDouble> *solver = new Solver<IssmDouble>(a, b, nullptr, nullptr, femmodel->parameters);
+        //
+        // Vector<IssmDouble> *x = solver->Solve();
+        //
+        // IssmDouble y;
+        // x->GetValue(&y, 0);
+        // cout << "y = " << y << endl;
+        // x->GetValue(&y, 1);
+        // cout << "y = " << y << endl;
 
-        Solverx(&duf, Jff, pJf,NULL,NULL, femmodel->parameters);
+        // for (int i = 0; i < 3; i++) {
+        //     cout << i << endl;
+        // }
+
+        // delete solver;
+
+
+
+        // double min_term_old = minimization_term;
+
+
+        // # We get the minimization term from the attributes
+        // minimization_term = getattr(solver.equation,self.min_term)
+        // # The derivative for the minimization term has the same name and additionally _derivative
+        // minimization_derivative = getattr(solver.equation,self.min_term+str('_derivative'))
+        // # We get the old value of the minimization term.
+        // minimization_term_old = getattr(solver,self.min_term+str('_old'))
+        // # We obtain the old minimization value, if we calculated it
+        // if(np.isnan(minimization_term_old)):
+        //     min_term_old = minimization_term()
+        // else:
+        //     min_term_old = minimization_term_old
+        // gradient = minimization_derivative(U,1.0)
+        //
+        double minimization_term = pJf->Norm(NORM_TWO);
+
+        double min_term_new;
+        double min_term_old;
+        double alpha = 1.0;
+        double gamma = 1e-10;
+
+
+        while (min_term_new > min_term_old - gamma * alpha * gradient and alpha > self.min_step) {
+            alpha = 0.5 * alpha;
+            solver.equation.U.assign(solver.equation.U + alpha * U);
+            min_term_new = minimization_term();
+        }
+
+        // G'(x_n)(x_{n+1} - x_n) = -G(x_n)
+        Solverx(&duf, Jff, pJf, nullptr, nullptr, femmodel->parameters);
+
+
         delete Jff;
         delete pJf;
 
+        // stepsize a = 1
 
-        femmodel->profiler->Stop(SOLVER);
-        uf->AXPY(duf, 1.0);
+        // uf = uf + alpha * duf
+        uf->AXPY(duf, alpha);
+
+
         delete duf;
         Mergesolutionfromftogx(&ug, uf, ys, femmodel->nodes, femmodel->parameters);
         delete ys;
@@ -113,6 +193,7 @@ void solutionsequence_newton(FemModel *femmodel) {
         count++;
 
         /*Check convergence*/
+        Kff->MatMult(uf, pJf);
         convergence(&converged, Kff, pf, uf, old_uf, eps_res, eps_rel, eps_abs);
         delete Kff;
         delete pf;
