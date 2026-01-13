@@ -1,7 +1,7 @@
 /*!\file:  Matrix.h
  * \brief wrapper to matrix objects. The goal is to control which API (PETSc,Scalpack, Plapack?) 
  * implements our underlying matrix format.
- */ 
+ */
 
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
@@ -23,7 +23,7 @@ enum matrixtype { PetscMatType, IssmMatType };
 
 template <class doubletype> class Vector;
 
-template <class doubletype> 
+template <class doubletype>
 class Matrix{
 
 	public:
@@ -137,7 +137,7 @@ class Matrix{
 			/*set matrix type: */
 			if (strcmp(toolkittype,"petsc")==0){
 				#ifdef _HAVE_PETSC_
-				type=PetscMatType; 
+				type=PetscMatType;
 				#else
 				_error_("cannot create petsc matrix without PETSC compiled!");
 				#endif
@@ -257,7 +257,14 @@ class Matrix{
 			}
 
 		}
-		/*}}}*/
+		#ifdef _HAVE_PETSC_
+		void MatMultTranspose(Vector<doubletype>* X,Vector<doubletype>* AX){/*{{{*/
+				if(type==PetscMatType){
+					this->pmatrix->MatMultTranspose(X->pvector, AX->pvector);
+				}
+			}
+	    /*}}}*/
+		#endif
 		Matrix<doubletype>* Duplicate(void){/*{{{*/
 
 			Matrix<doubletype>* output=new Matrix<doubletype>();

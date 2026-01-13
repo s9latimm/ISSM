@@ -223,6 +223,9 @@ class IssmMat{
 		void MatMult(IssmVec<doubletype>* X,IssmVec<doubletype>* AX){ /*{{{*/
 			matrix->MatMult(X->vector,AX->vector);
 		} /*}}}*/
+		void MatMultTranspose(IssmVec<doubletype>* X,IssmVec<doubletype>* AX){ /*{{{*/
+			matrix->MatMultTranspose(X->vector,AX->vector);
+		} /*}}}*/
 		IssmMat<doubletype>* Duplicate(void){ /*{{{*/
 
 			IssmMat<doubletype>* issmmatrix=NULL;

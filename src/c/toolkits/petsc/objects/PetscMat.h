@@ -52,6 +52,7 @@ class PetscMat{
 		void GetSize(int* pM,int* pN);
 		void GetLocalSize(int* pM,int* pN);
 		void MatMult(PetscVec<doubletype>* X,PetscVec<doubletype>* AX);
+		void MatMultTranspose(PetscVec<doubletype>* X,PetscVec<doubletype>* AX);
 		PetscMat* Duplicate(void);
 		doubletype* ToMPISerial(void);
 		doubletype* ToMPISerial0(void);

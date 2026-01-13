@@ -183,6 +183,23 @@ void PetscMat<doubletype>::MatMult(PetscVec<doubletype>* X,PetscVec<doubletype>*
 
 	MatMult(this->matrix, X->vector, AX->vector);
 }/*}}}*/
+
+template<typename doubletype>
+void PetscMat<doubletype>::MatMultTranspose(PetscVec<doubletype>* X,PetscVec<doubletype>* AX){/*{{{*/
+
+	_assert_(this->matrix);
+	_assert_(X->vector);
+	_assert_(AX->vector);
+
+	using ::MatMultTranspose;
+#if _HAVE_CODIPACK_
+	using ::adjoint_petsc::MatMultTranspose;
+#endif
+
+	MatMultTranspose(this->matrix, X->vector, AX->vector);
+}/*}}}*/
+
+
 template<typename doubletype>
 PetscMat<doubletype>* PetscMat<doubletype>::Duplicate(void){/*{{{*/
 
