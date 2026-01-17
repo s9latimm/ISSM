@@ -27,6 +27,8 @@ void solutionsequence_nonlinear(FemModel* femmodel,bool conserve_loads){
 	int min_mechanical_constraints;
 	int max_nonlinear_iterations;
 	int configuration_type;
+
+	int max_iterations = 80;
 	IssmDouble eps_res,eps_rel,eps_abs;
 
 	/*Recover parameters: */
@@ -119,6 +121,11 @@ void solutionsequence_nonlinear(FemModel* femmodel,bool conserve_loads){
 			Kfs->SetZero();
 			df->Set(0);
 			pf->Set(0);
+		}
+
+		if (count >= max_iterations) {
+			_printf0_("   maximum number of iterations (" << max_iterations << ") exceeded\n");
+			break;
 		}
 	}
 

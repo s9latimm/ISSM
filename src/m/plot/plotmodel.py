@@ -138,8 +138,6 @@ def plotmodel(md, *args):
                 print("Too many axes present, we delete the overflow")
                 fig.delaxes(axgrid[i])
 
-        path = Path(__file__).parent.parent / 'output' / 'issm.png'
-        path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(path)
+        return fig
     else:
         raise Exception('plotmodel error message: no output data found.')

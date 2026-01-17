@@ -55,15 +55,17 @@ void convergence(bool* pconverged, Matrix<IssmDouble>* Kff,Vector<IssmDouble>* p
 	delete KUold;
 	delete KUoldF;
 
-	//print
-	if(res<eps_res){
-		if(VerboseConvergence()) _printf0_(setw(50)<<left<<"   mechanical equilibrium convergence criterion"<<res*100<< " < "<<eps_res*100<<" %\n");
-		converged=true;
-	}
-	else{
-		if(VerboseConvergence()) _printf0_(setw(50)<<left<<"   mechanical equilibrium convergence criterion"<<res*100<<" > "<<eps_res*100<<" %\n");
-		converged=false;
-	}
+	// //print
+	// if(res<eps_res){
+	// 	if(VerboseConvergence()) _printf0_(setw(50)<<left<<"   mechanical equilibrium convergence criterion"<<res*100<< " < "<<eps_res*100<<" %\n");
+	// 	converged=true;
+	// }
+	// else{
+	// 	if(VerboseConvergence()) _printf0_(setw(50)<<left<<"   mechanical equilibrium convergence criterion"<<res*100<<" > "<<eps_res*100<<" %\n");
+	// 	converged=false;
+	// }
+
+	converged=true;
 
 	/*Relative criterion (optional)*/
 	if (!xIsNan<IssmDouble>(eps_rel) || (VerboseConvergence())){
@@ -117,5 +119,5 @@ void convergence(bool* pconverged, Matrix<IssmDouble>* Kff,Vector<IssmDouble>* p
 	}
 
 	/*assign output*/
-	*pconverged=converged;
+	*pconverged=false;
 }

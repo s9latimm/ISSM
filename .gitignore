@@ -94,8 +94,10 @@ examples/Data/*.nc
 examples/Data/*.mat
 examples/Data/*.txt
 examples/Data/*.zip
+examples/**/*.tar.gz
 examples/Data/Jakobshavn_2008_2011_Composite
 examples/Helheim/Models
+output/
 
 # IDE #
 #===========

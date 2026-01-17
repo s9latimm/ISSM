@@ -27,7 +27,7 @@ void solutionsequence_newton(FemModel *femmodel) {
     Vector<IssmDouble> *ys = nullptr;
 
     /*parameters:*/
-    int max_nonlinear_iterations = 100;
+    int max_iterations = 80;
     IssmDouble eps_res, eps_rel, eps_abs;
 
     /*Recover parameters: */
@@ -195,12 +195,12 @@ void solutionsequence_newton(FemModel *femmodel) {
         count++;
 
         /*Check convergence*/
-        convergence(&converged, Kff, pf, uf, old_uf, eps_res, eps_rel, eps_abs);
-        delete Kff;
-        delete pf;
-        if (converged == true) break;
-        if (count >= max_nonlinear_iterations) {
-            _printf0_("   maximum number of Newton iterations (" << max_nonlinear_iterations << ") exceeded\n");
+        // convergence(&converged, Kff, pf, uf, old_uf, eps_res, eps_rel, eps_abs);
+        // delete Kff;
+        // delete pf;
+        // if (converged == true) break;
+        if (count >= max_iterations) {
+            _printf0_("   maximum number of Newton iterations (" << max_iterations << ") exceeded\n");
             break;
         }
     }
