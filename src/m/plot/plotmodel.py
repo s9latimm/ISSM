@@ -20,6 +20,8 @@ def plotmodel(md, *args):
         - Fix 'plotdoc()', as it is not currently working.
     """
 
+    # test
+
     #First process options
     options = plotoptions(*args)
 

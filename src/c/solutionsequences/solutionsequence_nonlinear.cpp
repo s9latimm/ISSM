@@ -40,6 +40,8 @@ void solutionsequence_nonlinear(FemModel* femmodel,bool conserve_loads){
 	femmodel->parameters->FindParam(&configuration_type,ConfigurationTypeEnum);
 	femmodel->UpdateConstraintsx();
 
+	_printf0_("running nonlinear\n");
+
 	/*Were loads requested as output? : */
 	Loads* savedloads=NULL;
 	if(conserve_loads){

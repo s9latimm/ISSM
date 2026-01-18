@@ -148,7 +148,7 @@ class stressbalance(object):
         md = checkfield(md, 'fieldname', 'stressbalance.reltol', 'size', [1])
         md = checkfield(md, 'fieldname', 'stressbalance.abstol', 'size', [1])
         md = checkfield(md, 'fieldname', 'stressbalance.ishydrologylayer', 'numel', [1], 'values', [0, 1]);
-        md = checkfield(md, 'fieldname', 'stressbalance.isnewton', 'numel', [1], 'values', [0, 1, 2])
+        md = checkfield(md, 'fieldname', 'stressbalance.isnewton', 'numel', [1], 'values', [0, 1, 2, 3, 4, 5])
         md = checkfield(md, 'fieldname', 'stressbalance.FSreconditioning', 'size', [1], 'NaN', 1, 'Inf', 1)
         md = checkfield(md, 'fieldname', 'stressbalance.maxiter', 'size', [1], '>=', 1)
         md = checkfield(md, 'fieldname', 'stressbalance.referential', 'size', [md.mesh.numberofvertices, 6])

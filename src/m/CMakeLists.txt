@@ -35,5 +35,11 @@ if (PYTHON AND NOT DEVELOPMENT)
             "solve/*.py"
             "solvers/*.py"
     )
-    file(COPY ${BIN_SCRIPTS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    #    message(STATUS "Copying Python scripts")
+    #    file(COPY ${BIN_SCRIPTS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    message(STATUS "Linking Python scripts")
+    foreach (ORIGINAL IN ITEMS ${BIN_SCRIPTS})
+        get_filename_component(LINK "${ORIGINAL}" NAME)
+        file(CREATE_LINK "${ORIGINAL}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${LINK}")
+    endforeach ()
 endif ()

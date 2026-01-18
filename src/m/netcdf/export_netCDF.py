@@ -71,12 +71,7 @@ def export_netCDF(md, filename):  # {{{
     verbose = 0
     if path.exists(filename):
         print('File {} already exists'.format(filename))
-        newname = input('Give a new name or "delete" to replace: ')
-        if newname == 'delete':
-            remove(filename)
-        else:
-            print(('New file name is {}'.format(newname)))
-            filename = newname
+        remove(filename)
     #create file and define it
     NCData = Dataset(filename, 'w', format='NETCDF4')
     NCData.description = 'Results for run' + md.miscellaneous.name

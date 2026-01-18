@@ -34,19 +34,19 @@ print('   Defining friction parameters')
 md.friction.coefficient = 200.0 * np.ones((md.mesh.numberofvertices))
 #one friction exponent (p, q) per element
 #->
-md.friction.p = np.ones((md.mesh.numberofelements))
+md.friction.p = np.ones(md.mesh.numberofelements)
 #->
-md.friction.q = np.ones((md.mesh.numberofelements))
+md.friction.q = np.ones(md.mesh.numberofelements)
 
 print('   Construct ice rheological properties')
 
 #The rheology parameters sit in the material section #md.materials
 #B has one value per vertex
 #->
-md.materials.rheology_B = 6.8067e7 * np.ones((md.mesh.numberofvertices))
+md.materials.rheology_B = 6.8067e7 * np.ones(md.mesh.numberofvertices)
 #n has one value per element
 #->
-md.materials.rheology_n = 3 * np.ones((md.mesh.numberofelements))
+md.materials.rheology_n = 3 * np.ones(md.mesh.numberofelements)
 
 print('   Set boundary conditions')
 

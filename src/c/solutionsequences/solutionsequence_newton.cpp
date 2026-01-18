@@ -11,7 +11,7 @@
 void solutionsequence_newton(FemModel *femmodel) {
     /*intermediary: */
     bool converged;
-    int count, newton;
+    int count, newton, maxiter;
     IssmDouble kmax;
     Matrix<IssmDouble> *Kff = nullptr;
     Matrix<IssmDouble> *Kfs = nullptr;
@@ -27,12 +27,12 @@ void solutionsequence_newton(FemModel *femmodel) {
     Vector<IssmDouble> *ys = nullptr;
 
     /*parameters:*/
-    int max_iterations = 80;
     IssmDouble eps_res, eps_rel, eps_abs;
 
     /*Recover parameters: */
     // femmodel->parameters->FindParam(&max_nonlinear_iterations,StressbalanceMaxiterEnum);
     femmodel->parameters->FindParam(&newton, StressbalanceIsnewtonEnum);
+    femmodel->parameters->FindParam(&maxiter, StressbalanceMaxiterEnum);
     femmodel->parameters->FindParam(&eps_res, StressbalanceRestolEnum);
     femmodel->parameters->FindParam(&eps_rel, StressbalanceReltolEnum);
     femmodel->parameters->FindParam(&eps_abs, StressbalanceAbstolEnum);
@@ -55,14 +55,24 @@ void solutionsequence_newton(FemModel *femmodel) {
         delete old_uf;
         old_uf = uf;
 
-        /*Solver forward model*/
+        switch (newton) {
+            case 1:
+                _printf0_("running newton with fixed stepsize\n");
+                break;
+            case 3:
+                _printf0_("running newton with adaptive stepsize\n");
+                break;
+            default: ;
+        }
+
         if (count == 0 || newton == 2) {
-            SystemMatricesx(&Kff, &Kfs, &pf, &df, nullptr, femmodel);
+            _printf0_("Initial picard iteration\n");
+
+            SystemMatricesx(&Kff, &Kfs, &pf, &df,NULL, femmodel);
             CreateNodalConstraintsx(&ys, femmodel->nodes);
             Reduceloadx(pf, Kfs, ys);
             delete Kfs;
             femmodel->profiler->Start(SOLVER);
-            // Kff(uf) = pf
             Solverx(&uf, Kff, pf, old_uf, df, femmodel->parameters);
             delete df;
             delete Kff;
@@ -76,9 +86,6 @@ void solutionsequence_newton(FemModel *femmodel) {
             delete old_uf;
             old_uf = uf;
         }
-
-        _printf0_("running newton:" << count <<"\n");
-
         uf = old_uf->Duplicate();
         old_uf->Copy(uf);
 
@@ -88,8 +95,6 @@ void solutionsequence_newton(FemModel *femmodel) {
         CreateNodalConstraintsx(&ys, femmodel->nodes);
         Reduceloadx(pf, Kfs, ys);
         delete Kfs;
-
-        CreateJacobianMatrixx(&Jff, femmodel, kmax);
 
         pJf = pf->Duplicate();
 
@@ -102,89 +107,60 @@ void solutionsequence_newton(FemModel *femmodel) {
         // pJf = pJf + pf
         pJf->AXPY(pf, +1.0);
 
+        CreateJacobianMatrixx(&Jff, femmodel, kmax);
+
         // G'(v_k, p_k)(w_k, q_k) = -G(v_k, p_k)
         // G(v_k, p_k) -> -(Kff * uf) + pf
         // Jff(duf) = pJf
         Solverx(&duf, Jff, pJf, nullptr, nullptr, femmodel->parameters);
 
-        // uf = uf + duf
-        // uf->AXPY(duf, 1);
+        if (newton == 1) {
+            uf->AXPY(duf, 1);
+        } else if (newton == 4) {
+            uf->AXPY(duf, .5);
+        } else if (newton == 3) {
+            // uf = uf + duf
+            // uf->AXPY(duf, 1);
 
-        double alpha = 1.;
-        double gamma = 1e-10;
+            double alpha = 1.;
+            double gamma = 1e-10;
 
-        pJf->Scale(-1.0);
+            pJf->Scale(-1.0);
 
-        Vector<IssmDouble> *fu = pJf->Duplicate();
-        Kff->MatMult(old_uf, fu);
-        IssmDouble min_term_old = fu->Norm(NORM_TWO);
-        IssmDouble min_term_new;
+            Vector<IssmDouble> *fu = pJf->Duplicate();
+            Kff->MatMult(old_uf, fu);
+            IssmDouble min_term_old = fu->Norm(NORM_TWO);
+            IssmDouble min_term_new = -1;
 
-        // ||G^T() * G()||
-        // G'(v_k, p_k)(w_k, q_k)^T * G(v_k, p_k)
-        // Jff->pmatrix->matrix.Transpose().MatMult(pJf, ?);
-        // min_term_old ** 2
+            // ||G^T() * G()||
+            // G'(v_k, p_k)(w_k, q_k)^T * G(v_k, p_k)
+            // Jff->pmatrix->matrix.Transpose().MatMult(pJf, ?);
+            // min_term_old ** 2
 
-        Vector<IssmDouble> *gf = pJf->Duplicate();
-        Jff->MatMult(duf, gf);
-        double gradient = gf->Norm(NORM_TWO);
+            Vector<IssmDouble> *gf = pJf->Duplicate();
+            Jff->MatMult(duf, gf);
+            double gradient = gf->Norm(NORM_TWO);
 
-        int max_steps = 0;
-        do {
-            // u = u + alpha * duf
-            uf = old_uf->Duplicate();
-            uf->AXPY(duf, alpha);
+            int max_steps = 0;
+            do {
+                // uf = upf
+                old_uf->Copy(uf);
 
-            // pJf = Kff * u
-            Kff->MatMult(uf, pJf);
+                // u = u + alpha * duf
+                uf->AXPY(duf, alpha);
 
-            min_term_new = pJf->Norm(NORM_TWO);
+                // pJf = Kff * u
+                Kff->MatMult(uf, pJf);
 
-            alpha = .5 * alpha;
-            ++max_steps;
-            _printf0_(
-                "step (" << max_steps <<"): "<< min_term_new << " < "\
-                << min_term_old << " - "<< gamma<< " * "<< alpha << " * "<< gradient << "\n");
-        } while (min_term_new > min_term_old - gamma * alpha * gradient && max_steps < 20);
+                min_term_new = pJf->Norm(NORM_TWO);
 
-        // functional
-
-        double B = 0.5 * pow(1e-16, -1.0 / 3.0);
-        double realistic_factor = 1e6;
-        double nue = B * realistic_factor;
-        double n = 3;
-        double mu0 = 1e-17;
-        double delta = 1e-12;
-        double s = 1 + 1 / n;
-        double g = 9.81;
-        double rho = 910;
-        // double f = g*rho*Constant((0,-1));
-
-        // auto functional = [s, nue, delta, mu0, rho](Vector<IssmDouble> *duf, Vector<IssmDouble> *p) {
-        //     double functional_value = 4 / s * nue * pow(0.5 * duf->Dot(duf) + pow(delta, 2), s / 2);
-        //     functional_value += 0.5 * mu0 * duf->Dot(duf);
-        //     functional_value -= duf->Dot(p);
-        //     return functional_value;
-        // };
-        //
-        // auto functional_derivative = [s, nue, delta, mu0, rho](Vector<IssmDouble> *duf, Vector<IssmDouble> *u,
-        //                                                        Vector<IssmDouble> *p, double t) {
-        //     double p_help = u->Scale(t) + u;
-        //     double u_help = 0;
-        //     functional_deriv_value = assemble(self.mu(uhelp) * inner(sym(nabla_grad(uhelp)), nabla_grad(u)) * dx
-        //                                       - inner(self.f, u) * dx)
-        //     functional_deriv_value = functional_deriv_value + assemble(
-        //                                  self.mu0 * inner(sym(nabla_grad(uhelp)), nabla_grad(u)) * dx)
-        //     functional_deriv_value = functional_deriv_value - assemble((div(u) * phelp - div(uhelp) * p) * dx)
-        // };
-
-
-        // v = uf
-        // p = pf
-        // G(v, p) = pJf
-
-        // uf = uf + alpha * duf
-        // uf->AXPY(duf, alpha);
+                alpha = .5 * alpha;
+                ++max_steps;
+                _printf0_(
+                    "step (" << max_steps <<"): "<< min_term_new << " < "\
+                    << min_term_old << " - "<< gamma<< " * "<< alpha << " * "<< gradient << "\n");
+            } while (min_term_new > min_term_old - gamma * alpha * gradient && max_steps < 100);
+        }
 
         delete Jff;
         delete pJf;
@@ -199,8 +175,8 @@ void solutionsequence_newton(FemModel *femmodel) {
         // delete Kff;
         // delete pf;
         // if (converged == true) break;
-        if (count >= max_iterations) {
-            _printf0_("   maximum number of Newton iterations (" << max_iterations << ") exceeded\n");
+        if (count >= maxiter) {
+            _printf0_("   maximum number of Newton iterations (" << maxiter << ") exceeded\n");
             break;
         }
     }
